@@ -4,17 +4,17 @@
 
 Pie chart of allocation of "leaf" stories in the currently selected Project Scope, grouped by whether or not the ancestor portfolio item is tagged with the "Core PB Gold List" flag. Orphaned work or stories which roll up to a portfolio item with the flag unspecified will be accounted for in an "undefined" category in the chart.
 
-Allocation can be calculated by leaf story count or sum of leaf story plan estimate.
+Allocation can be calculated by leaf story count or sum of leaf story points (plan estimate).
 
 This will work on a Release filtered page. In lieu of using a page-level Release filter, the App Settings support 
 explicitly specifying a Release Start Date and a Release End Date. In this case, User Stories in the currently selected Project Scope
-that have been In Progress between the specified Release Start Date and Release End Date will be included in the data. 
+that have been Accepted and/or In Progress (depending on how the "Include Work in Progress" option is specified) between the specified Release Start Date and Release End Date will be included in the data. 
 
 ## App Settings
 
- * The Portfolio Item Type that allocation is shown for is a configuration in the App Settings.  
+ * The Portfolio Item Type that allocation is shown for is a configuration in the App Settings. (Client recommends Capability.)
  * Calculation Type (story count or story points) is also configured in the app settings.  
- * Include Work in Progress - if checked, User Stories which were In Progress anytime during the specified time period will be included in the data. If unchecked, only User Stories which were Accepted during the specified time period will be included in the data.  
+ * Include Work in Progress - if checked, User Stories which were In Progress anytime during the specified time period will be included in the data. If unchecked (default), only User Stories which were Accepted during the specified time period will be included in the data.  
  * Strict Release Filter - if checked, User Stories must have their Release attribute populated for inclusion in the data. If unchecked, User Stories in the currently selected Project Scope that have been Accepted and/or In Progress (depending on how the "Include Work in Progress" option is specified) between the Start/End Dates of the Release specified in the page-level filter will be included in the data.
  * Release Start Date and Release End Date can be specified if the page-level filter is not defined. In this case, User Stories in the currently selected Project Scope that have been Accepted and/or In Progress (depending on how the "Include Work in Progress" option is specified) between the defined Release Start Date and the Release End Date will be included in the data. (Release Start Date and Release End Date in App Settings are ignored if a page-level Release filter is defined.)
 

@@ -340,10 +340,10 @@ Ext.define("ms-gold-list-allocation", {
         }, this);
 
 
-        if (debug && this.exportDebug){
-            CArABU.technicalservices.Exporter.saveAs(debug.join('\r\n'),"debugexport.csv")
-        }
-        this.logger.log('calling buildChart(portfolioHash) = ', portfolioHash);
+        // if (debug && this.exportDebug){
+        //     CArABU.technicalservices.Exporter.saveAs(debug.join('\r\n'),"debugexport.csv")
+        // }
+        // this.logger.log('calling buildChart(portfolioHash) = ', portfolioHash);
         this.buildChart(portfolioHash);
     },
 
@@ -432,7 +432,6 @@ Ext.define("ms-gold-list-allocation", {
                 }]
             }
         });
-
     },
 
     getPortfolioItemTypeName: function(){

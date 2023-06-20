@@ -1,16 +1,14 @@
-#Work Item Allocation by Portfolio
+#Core PB Gold List Allocation (customer-specific)
 
 ## Summary/Description
 
-Pie chart of allocation of "leaf" stories (Stories with no story children) in the currently selected Project Scope by portfolio item.  
+Pie chart of allocation of "leaf" stories in the currently selected Project Scope, grouped by whether or not the ancestor portfolio item is tagged with the "Core PB Gold List" flag. Orphaned work or stories which roll up to a portfolio item with the flag unspecified will be accounted for in an "undefined" category in the chart.
 
 Allocation can be calculated by leaf story count or sum of leaf story plan estimate.
 
 This will work on a Release filtered page. In lieu of using a page-level Release filter, the App Settings support 
 explicitly specifying a Release Start Date and a Release End Date. In this case, User Stories in the currently selected Project Scope
 that have been In Progress between the specified Release Start Date and Release End Date will be included in the data. 
-
-![screenshot](./images/work-item-allocation-by-portfolio.png)
 
 ## App Settings
 

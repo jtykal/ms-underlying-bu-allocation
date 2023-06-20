@@ -1,4 +1,4 @@
-Ext.define("work-item-allocation-by-portfolio", {
+Ext.define("ms-gold-list-allocation", {
     extend: 'Rally.app.App',
     componentCls: 'app',
     logger: new Rally.technicalservices.Logger(),
@@ -8,7 +8,7 @@ Ext.define("work-item-allocation-by-portfolio", {
     ],
 
     integrationHeaders : {
-        name : "work-item-allocation-by-portfolio"
+        name : "ms-gold-list-allocation"
     },
 
     config: {
@@ -24,26 +24,9 @@ Ext.define("work-item-allocation-by-portfolio", {
     exportDebug: false,
     MAX_FILTERS: 50,
     chartColors: [
-        Rally.util.Colors.grey5,
-        Rally.util.Colors.brick,
-        Rally.util.Colors.lime,
-        Rally.util.Colors.blue,
-        Rally.util.Colors.yellow,
-        Rally.util.Colors.green,
-        Rally.util.Colors.orange,
-        Rally.util.Colors.pink,
-        Rally.util.Colors.purple,
-        Rally.util.Colors.teal,
-        Rally.util.Colors.red_med,
-        Rally.util.Colors.lime_med,
-        Rally.util.Colors.cyan,
-        Rally.util.Colors.blue_lt,
-        Rally.util.Colors.yellow_med,
-        Rally.util.Colors.orange_med,
-        Rally.util.Colors.pink_med,
-        Rally.util.Colors.purple_med,
-        Rally.util.Colors.teal_med,
-        Rally.util.Colors.red_lt
+        Rally.util.Colors.gold,
+        Rally.util.Colors.logo_red,
+        Rally.util.Colors.grey5
     ],
 
     launch: function() {
@@ -62,7 +45,7 @@ Ext.define("work-item-allocation-by-portfolio", {
     },
 
     validateSettings: function(){
-        this.logger.log('validateSettings()');
+        //this.logger.log('validateSettings()');
         if (!this.getSetting('portfolioItemType') || this.getPIBucketLevel() < 0){
             this.getDisplayBox().update({message: "Please configure a Portfolio Item Type in the App Settings."});
             return false;
@@ -86,7 +69,7 @@ Ext.define("work-item-allocation-by-portfolio", {
 
         if (timebox_scope) {
             if (this.getSetting('strictReleaseFilter') == true) {
-                this.logger.log('EXPLICIT RELEASE FILTERS');
+                //this.logger.log('EXPLICIT RELEASE FILTERS');
                 filters = [
                     {
                         property: 'DirectChildrenCount',
@@ -102,7 +85,7 @@ Ext.define("work-item-allocation-by-portfolio", {
             };
 
             // GET DATES FROM THE RELEASE TIMEBOX
-            this.logger.log('IMPLICIT RELEASE DATE FILTERS');
+            //this.logger.log('IMPLICIT RELEASE DATE FILTERS');
             var release_data = timebox_scope.record.getData();
             //this.logger.log('release_data: ', release_data);
             startDate = release_data.ReleaseStartDate;
@@ -116,7 +99,7 @@ Ext.define("work-item-allocation-by-portfolio", {
         }
         else {
             // GET DATES FROM THE APP SETTINGS
-            this.logger.log('APP SETTING DATE FILTERS');
+            //this.logger.log('APP SETTING DATE FILTERS');
             startDate = this.getSetting('releaseStartDate');
             endDate = this.getSetting('releaseEndDate');
         }
@@ -193,7 +176,7 @@ Ext.define("work-item-allocation-by-portfolio", {
     },
 
     getPortfolioFetchList: function(){
-        return ['ObjectID','FormattedID','Parent','Name'];
+        return ['ObjectID','FormattedID','Parent','Name', 'c_CorePBGoldList'];
     },
 
     updateView: function(){
@@ -217,7 +200,7 @@ Ext.define("work-item-allocation-by-portfolio", {
             };
 
         var piLevel = this.getPIBucketLevel();
-        this.logger.log('fetchPortfolioItems', piLevel);
+        //this.logger.log('fetchPortfolioItems', piLevel);
         if (piLevel === 0){
             //We have everything we need in the story record since we fetched feature and parent
             deferred.resolve(returnObj);
@@ -228,7 +211,7 @@ Ext.define("work-item-allocation-by-portfolio", {
                 }
                 return ar;
             }, []);
-            this.logger.log('fetchPortfolioItems featureOids', featureOids);
+            //this.logger.log('fetchPortfolioItems featureOids', featureOids);
             if (featureOids.length === 0) {
                 //None of the stories have features and we are done here
                 deferred.resolve(returnObj);
@@ -271,7 +254,7 @@ Ext.define("work-item-allocation-by-portfolio", {
                 }
                 Deft.Promise.all(promises).then({
                     success: function(results){
-                        this.logger.log('fetchPortfolioItems success', results);
+                        //this.logger.log('fetchPortfolioItems success', results);
                         returnObj.portfolioItems = [];
                         for (var i=0; i<piLevel; i++){
                             returnObj.portfolioItems[i] = _.reduce(results[i], function(hash, p){
@@ -314,7 +297,7 @@ Ext.define("work-item-allocation-by-portfolio", {
      * @param obj
      */
     processItems: function(obj){
-        this.logger.log('processItems', obj);
+        this.logger.log('processItems ', obj);
 
         var featureField = this.getPortfolioName(),
             portfolioHash = {},
@@ -325,29 +308,42 @@ Ext.define("work-item-allocation-by-portfolio", {
         Ext.Array.each(obj.workItems, function(w){
             var feature = w.get(featureField),
                 ancestor = this.getPortfolioAncestorKey(piLevel, feature, obj.portfolioItems, dataMap),
-                key = ancestor;
+                key = ancestor,
+                gold_list = 'undefined';
 
             if (Ext.isObject(ancestor)){
-                debug.push([w.get('FormattedID'), key.FormattedID].join(','));
+            //    debug.push([w.get('FormattedID'), key.FormattedID].join(','));
                 key = ancestor.ObjectID;
-            } else {
-                debug.push([w.get('FormattedID'), key].join(','));
+                gold_list = ancestor.c_CorePBGoldList;
+            //} else {
+            //    debug.push([w.get('FormattedID'), key].join(','));
             }
-            if (!portfolioHash[key]){
-                portfolioHash[key] = {
-                    data: ancestor,
+            if (!portfolioHash[gold_list]){
+                var label;
+                if (gold_list === true) {
+                    label = "Gold List"
+                }
+                else if (gold_list === false) {
+                    label = "non-Gold List"
+                }
+                else {
+                    label = "undefined"
+                }
+                portfolioHash[gold_list] = {
+                    data: label,
                     count: 0,
                     points: 0
                 };
             }
-            portfolioHash[key].count++;
-            portfolioHash[key].points += Number(w.get('PlanEstimate'));
+            portfolioHash[gold_list].count++;
+            portfolioHash[gold_list].points += Number(w.get('PlanEstimate'));
         }, this);
 
 
         if (debug && this.exportDebug){
             CArABU.technicalservices.Exporter.saveAs(debug.join('\r\n'),"debugexport.csv")
         }
+        this.logger.log('calling buildChart(portfolioHash) = ', portfolioHash);
         this.buildChart(portfolioHash);
     },
 
@@ -356,10 +352,12 @@ Ext.define("work-item-allocation-by-portfolio", {
 
         var noneText = "None";
         if (!featureObj){
+            //this.logger.log('getPortfolioAncestorKey returning ', noneText);
             return noneText;
         }
 
         if (ancestorLevel === 0){
+            //this.logger.log('getPortfolioAncestorKey returning featureObj=', ancestor);
             return featureObj;
         }
 
@@ -371,30 +369,53 @@ Ext.define("work-item-allocation-by-portfolio", {
                     portfolioItems[i][ancestor.ObjectID].Parent || noneText;
             }
         }
+        //this.logger.log('getPortfolioAncestorKey returning ancestor=', ancestor);
         return ancestor;
     },
 
-    buildChart: function(portfolioHash, dataMap){
-        this.logger.log('buildChart', portfolioHash, dataMap);
+    buildChart: function(portfolioHash){
+        this.logger.log('start buildChart, portfolioHash = ', portfolioHash);
 
-        var data = [],
-            unitType = this.getUnitValue();
-        Ext.Object.each(portfolioHash, function(oid, obj){
-            var name = obj.data;
-            if (Ext.isObject(name)){
-                name = Ext.String.format("{0}: {1}", name.FormattedID, name.Name);
-                data.push({
-                    name: name,
-                    y: obj[unitType]
-                });
-            } else {
-                //Put the 'None' at the beginning of the pack so it aligns with the gray color
-                data.unshift({
-                    name: name,
-                    y: obj[unitType]
-                });
+        var unit_value = this.getUnitValue(),
+            data = [
+                {
+                    "name": "Gold List",
+                    "y": 0
+                },
+                {
+                    "name": "non-Gold List",
+                    "y": 0
+                },
+                {
+                    "name": "undefined",
+                    "y": 0
+                }
+            ];
+
+        if (portfolioHash[true]) {
+            if (unit_value == 'count') {
+                data[0].y = portfolioHash[true].count;
+              }
+            else {
+                data[0].y = portfolioHash[true].points;
             }
-        });
+        }
+        if (portfolioHash[false]) {
+            if (unit_value == 'count') {
+                data[1].y = portfolioHash[false].count;
+            }
+            else {
+                data[1].y = portfolioHash[false].points;
+            }
+        }
+        if (portfolioHash['undefined']) {
+            if (unit_value == 'count') {
+                data[2].y = portfolioHash['undefined'].count;
+            }
+            else {
+                data[2].y = portfolioHash['undefined'].points;
+            }
+        }
         this.logger.log('buildChart', data);
 
         this.getDisplayBox().removeAll();
@@ -405,7 +426,7 @@ Ext.define("work-item-allocation-by-portfolio", {
             chartData: {
                 series: [{
                     type: 'pie',
-                    name: "User Story Allocation",
+                    name: "Gold List Allocation",
                     data:  data,
                     showInLegend: false
                 }]

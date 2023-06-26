@@ -15,10 +15,11 @@ Ext.define("ms-gold-list-allocation", {
         defaultSettings: {
             portfolioItemType: null,
             includeInProgress: false,
-            strictReleaseFilter: false,
+//            strictReleaseFilter: false,
             releaseStartDate: null,
             releaseEndDate: null,
-            calculationType: "count"
+            calculationType: "count",
+            query: ''
         }
     },
     exportDebug: false,
@@ -67,50 +68,25 @@ Ext.define("ms-gold-list-allocation", {
         var timebox_scope = this.getContext().getTimeboxScope();
         var startDate, endDate;
 
-        if (timebox_scope) {
-            if (this.getSetting('strictReleaseFilter') == true) {
-                //this.logger.log('EXPLICIT RELEASE FILTERS');
-                filters = [
-                    {
-                        property: 'DirectChildrenCount',
-                        value: 0
-                    }
-                ];
-                // Filters for explicit inclusion of work items based on Release setting
-                filters.push(timebox_scope.getQueryFilter());
-                if (filters.length > 1){
-                    filters = Rally.data.wsapi.Filter.and(filters);
-                }
-                return(filters);
-            };
-
-            // GET DATES FROM THE RELEASE TIMEBOX
-            //this.logger.log('IMPLICIT RELEASE DATE FILTERS');
-            var release_data = timebox_scope.record.getData();
-            //this.logger.log('release_data: ', release_data);
-            startDate = release_data.ReleaseStartDate;
-            endDate = release_data.ReleaseDate;
-
-            //get dates into a valid format for Rally API query
-            startDate = this.adjustDate(startDate);
-            endDate = this.adjustDate(endDate);
-
-            //this.logger.log('ADJUSTED dates: ', startDate, endDate);
-        }
-        else {
-            // GET DATES FROM THE APP SETTINGS
-            //this.logger.log('APP SETTING DATE FILTERS');
-            startDate = this.getSetting('releaseStartDate');
-            endDate = this.getSetting('releaseEndDate');
-        }
-
-        //this.logger.log('starting to build DATE filters');
         var filter1 = Ext.create('Rally.data.wsapi.Filter', {
                 property: 'DirectChildrenCount',
                 operator: '=',
                 value: 0
         });
         //this.logger.log('filter1 ', filter1, filter1.toString());
+
+        if (timebox_scope) {
+            // GET DATES FROM THE RELEASE TIMEBOX
+            var release_data = timebox_scope.record.getData();
+            //get dates into a valid format for Rally API query
+            startDate = this.adjustDate(release_data.ReleaseStartDate);
+            endDate = this.adjustDate(release_data.ReleaseDate);
+        }
+        else {
+            // GET DATES FROM THE APP SETTINGS
+            startDate = this.getSetting('releaseStartDate');
+            endDate = this.getSetting('releaseEndDate');
+        }
 
         var filter2 = [
             {
@@ -130,6 +106,7 @@ Ext.define("ms-gold-list-allocation", {
         // CHECK TO SEE IF THE USER WANTS ONLY WORK ACCEPTED DURING THE TIMEBOX, OR ANYTHING THAT WAS IN PROGRESS DURING THE TIMEBOX
         if (this.getSetting('includeInProgress') == false) {
             filters = filter1.and(filter2);
+            //this.logger.log('Accepted ONLY filters ', filters, filters.toString());
         } else {
             var filter3 = [
                 {
@@ -148,8 +125,17 @@ Ext.define("ms-gold-list-allocation", {
             var filter4 = filter2.or(filter3);
             //this.logger.log('filter4 ', filter4, filter4.toString());
             filters = filter1.and(filter4);
+            //this.logger.log('Includes IN PROGRESS filters ', filters, filters.toString());
         }
-        this.logger.log('getFilters', filters, filters.toString());
+
+        if (this.getSetting('query')) {
+            var querySetting = this.getSetting('query').replace(/\{user\}/g, this.getContext().getUser()._ref);
+            var query_filter = Rally.data.QueryFilter.fromQueryString(querySetting);
+            //this.logger.log('query_filter is ', query_filter, query_filter.toString());
+            filters = filters.and(query_filter);
+        }
+
+        //this.logger.log('getFilters RETURNING', filters, filters.toString());
         return filters;
     },
 
@@ -297,7 +283,7 @@ Ext.define("ms-gold-list-allocation", {
      * @param obj
      */
     processItems: function(obj){
-        this.logger.log('processItems ', obj);
+        //this.logger.log('processItems ', obj);
 
         var featureField = this.getPortfolioName(),
             portfolioHash = {},
@@ -374,7 +360,7 @@ Ext.define("ms-gold-list-allocation", {
     },
 
     buildChart: function(portfolioHash){
-        this.logger.log('start buildChart, portfolioHash = ', portfolioHash);
+        //this.logger.log('start buildChart, portfolioHash = ', portfolioHash);
 
         var unit_value = this.getUnitValue(),
             data = [
@@ -573,13 +559,13 @@ Ext.define("ms-gold-list-allocation", {
                 text: 'By checking this box, only User Stories with the Release field explictly set will be included in the data',
                 margin: '0 0 0 0'
             },
-            {
-                xtype: 'rallycheckboxfield',
-                name: 'strictReleaseFilter',
-                fieldLabel: 'Strict Release Filtering',
-                labelAlign: 'right',
-                labelWidth: 200
-            },
+//            {
+//                xtype: 'rallycheckboxfield',
+//                name: 'strictReleaseFilter',
+//                fieldLabel: 'Strict Release Filtering',
+//                labelAlign: 'right',
+//                labelWidth: 200
+//            },
             {
                 xtype: 'label',
                 text: 'NOTE: These Dates are IGNORED if page-level filter is used!',
@@ -600,6 +586,9 @@ Ext.define("ms-gold-list-allocation", {
                 format: 'Y-m-d',
                 labelAlign: 'right',
                 labelWidth: 200
+            },
+            {
+                type: 'query'
             }
         ];
     },

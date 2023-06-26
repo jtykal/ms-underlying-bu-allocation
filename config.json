@@ -1,6 +1,6 @@
 {
-    "name": "Work Item Allocation by Portfolio",
+    "name": "MS Gold List allocation",
     "sdk": "2.1",
-    "className": "work-item-allocation-by-portfolio",
+    "className": "ms-gold-list-allocation",
     "story": "--"
 }

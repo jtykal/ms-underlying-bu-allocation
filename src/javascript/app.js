@@ -158,7 +158,7 @@ Ext.define("ms-gold-list-allocation", {
     },
 
     getFetchList: function(){
-        return [this.getPortfolioName(),'ObjectID','FormattedID','Parent','Name','PlanEstimate','AcceptedDate','InProgressDate','ScheduleState'];
+        return [this.getPortfolioName(),'ObjectID','FormattedID','Parent','Feature','Name','PlanEstimate','AcceptedDate','InProgressDate','ScheduleState'];
     },
 
     getPortfolioFetchList: function(){
@@ -554,11 +554,11 @@ Ext.define("ms-gold-list-allocation", {
                     data: [{_ref: "count", _refObjectName: "Story Count"},{_ref: "points", _refObjectName: "Sum of Story Points"}]
                 })
             },
-            {
-                xtype: 'label',
-                text: 'By checking this box, only User Stories with the Release field explictly set will be included in the data',
-                margin: '0 0 0 0'
-            },
+//            {
+//                xtype: 'label',
+//                text: 'By checking this box, only User Stories with the Release field explictly set will be included in the data',
+//                margin: '0 0 0 0'
+//            },
 //            {
 //                xtype: 'rallycheckboxfield',
 //                name: 'strictReleaseFilter',

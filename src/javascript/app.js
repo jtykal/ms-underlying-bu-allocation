@@ -55,7 +55,7 @@ Ext.define("ms-gold-list-allocation", {
             this.getDisplayBox().update({message: "Please configure Release Start/End Dates in the App Settings."});
             return false;
         }
-        this.updateView();
+        //this.updateView();
         return true;
     },
 
@@ -402,7 +402,7 @@ Ext.define("ms-gold-list-allocation", {
                 data[2].y = portfolioHash['undefined'].points;
             }
         }
-        this.logger.log('buildChart', data);
+        //this.logger.log('buildChart', data);
 
         this.getDisplayBox().removeAll();
         this.getDisplayBox().add({
@@ -483,7 +483,7 @@ Ext.define("ms-gold-list-allocation", {
 
     fetchWorkItems: function(){
         var deferred = Ext.create('Deft.Deferred');
-        this.logger.log('fetchWorkItems',this.getFilters().toString());
+        //this.logger.log('fetchWorkItems',this.getFilters().toString());
         Ext.create('Rally.data.wsapi.Store', {
             model: 'HierarchicalRequirement',
             filters: this.getFilters(),

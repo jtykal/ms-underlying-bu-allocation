@@ -1,4 +1,4 @@
-Ext.define("ms-gold-list-allocation", {
+Ext.define("ms-underlying-bu-allocation", {
     extend: 'Rally.app.App',
     componentCls: 'app',
     logger: new Rally.technicalservices.Logger(),
@@ -8,7 +8,7 @@ Ext.define("ms-gold-list-allocation", {
     ],
 
     integrationHeaders : {
-        name : "ms-gold-list-allocation"
+        name : "ms-underlying-bu-allocation"
     },
 
     config: {
@@ -25,10 +25,27 @@ Ext.define("ms-gold-list-allocation", {
     exportDebug: false,
     MAX_FILTERS: 50,
     chartColors: [
-        Rally.util.Colors.gold,
-        Rally.util.Colors.logo_red,
-        Rally.util.Colors.grey5
+        Rally.util.Colors.brick,
+        Rally.util.Colors.lime,
+        Rally.util.Colors.blue,
+        Rally.util.Colors.yellow,
+        Rally.util.Colors.green,
+        Rally.util.Colors.orange,
+        Rally.util.Colors.pink,
+        Rally.util.Colors.purple,
+        Rally.util.Colors.teal,
+        Rally.util.Colors.red_med,
+        Rally.util.Colors.lime_med,
+        Rally.util.Colors.cyan,
+        Rally.util.Colors.blue_lt,
+        Rally.util.Colors.yellow_med,
+        Rally.util.Colors.orange_med,
+        Rally.util.Colors.pink_med,
+        Rally.util.Colors.purple_med,
+        Rally.util.Colors.teal_med,
+        Rally.util.Colors.red_lt
     ],
+
 
     launch: function() {
         this.fetchPortfolioItemTypes().then({
@@ -162,7 +179,7 @@ Ext.define("ms-gold-list-allocation", {
     },
 
     getPortfolioFetchList: function(){
-        return ['ObjectID','FormattedID','Parent','Name', 'c_CorePBGoldList'];
+        return ['ObjectID','FormattedID','Parent','Name', 'c_CorePBUnderlyingBusinessUnit'];
     },
 
     updateView: function(){
@@ -288,41 +305,34 @@ Ext.define("ms-gold-list-allocation", {
         var featureField = this.getPortfolioName(),
             portfolioHash = {},
             piLevel = this.getPIBucketLevel(),
-            dataMap = {},
-            debug = [];
+            dataMap = {};
+//            debug = [];
 
         Ext.Array.each(obj.workItems, function(w){
             var feature = w.get(featureField),
                 ancestor = this.getPortfolioAncestorKey(piLevel, feature, obj.portfolioItems, dataMap),
                 key = ancestor,
-                gold_list = 'undefined';
+                bu = 'undefined';
 
             if (Ext.isObject(ancestor)){
             //    debug.push([w.get('FormattedID'), key.FormattedID].join(','));
                 key = ancestor.ObjectID;
-                gold_list = ancestor.c_CorePBGoldList;
+                if (ancestor.c_CorePBUnderlyingBusinessUnit) {
+                    bu = ancestor.c_CorePBUnderlyingBusinessUnit;
+                }
             //} else {
             //    debug.push([w.get('FormattedID'), key].join(','));
             }
-            if (!portfolioHash[gold_list]){
-                var label;
-                if (gold_list === true) {
-                    label = "Gold List"
-                }
-                else if (gold_list === false) {
-                    label = "non-Gold List"
-                }
-                else {
-                    label = "undefined"
-                }
-                portfolioHash[gold_list] = {
-                    data: label,
+            if (!portfolioHash[bu]){
+                this.logger.log('create hash entry for bu = ',bu);
+                portfolioHash[bu] = {
+                    data: bu,
                     count: 0,
                     points: 0
                 };
             }
-            portfolioHash[gold_list].count++;
-            portfolioHash[gold_list].points += Number(w.get('PlanEstimate'));
+            portfolioHash[bu].count++;
+            portfolioHash[bu].points += Number(w.get('PlanEstimate'));
         }, this);
 
 
@@ -362,46 +372,16 @@ Ext.define("ms-gold-list-allocation", {
     buildChart: function(portfolioHash){
         //this.logger.log('start buildChart, portfolioHash = ', portfolioHash);
 
-        var unit_value = this.getUnitValue(),
-            data = [
-                {
-                    "name": "Gold List",
-                    "y": 0
-                },
-                {
-                    "name": "non-Gold List",
-                    "y": 0
-                },
-                {
-                    "name": "undefined",
-                    "y": 0
-                }
-            ];
-
-        if (portfolioHash[true]) {
-            if (unit_value == 'count') {
-                data[0].y = portfolioHash[true].count;
-              }
-            else {
-                data[0].y = portfolioHash[true].points;
-            }
-        }
-        if (portfolioHash[false]) {
-            if (unit_value == 'count') {
-                data[1].y = portfolioHash[false].count;
-            }
-            else {
-                data[1].y = portfolioHash[false].points;
-            }
-        }
-        if (portfolioHash['undefined']) {
-            if (unit_value == 'count') {
-                data[2].y = portfolioHash['undefined'].count;
-            }
-            else {
-                data[2].y = portfolioHash['undefined'].points;
-            }
-        }
+        var data = [],
+            unitType = this.getUnitValue();
+        Ext.Object.each(portfolioHash, function(oid, obj){
+            var name = obj.data;
+                data.push({
+                    name: name,
+                    y: obj[unitType]
+                });
+        });
+      
         //this.logger.log('buildChart', data);
 
         this.getDisplayBox().removeAll();
@@ -412,7 +392,7 @@ Ext.define("ms-gold-list-allocation", {
             chartData: {
                 series: [{
                     type: 'pie',
-                    name: "Gold List Allocation",
+                    name: "Underlying Business Unit Allocation",
                     data:  data,
                     showInLegend: false
                 }]

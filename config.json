@@ -1,6 +1,6 @@
 {
-    "name": "MS Gold List allocation",
+    "name": "MS Underlying Business Unit Allocation",
     "sdk": "2.1",
-    "className": "ms-gold-list-allocation",
+    "className": "ms-underlying-bu-allocation",
     "story": "--"
 }

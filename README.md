@@ -1,8 +1,8 @@
-#Core PB Gold List Allocation (customer-specific)
+#PB Core Underlying Business Unit Allocation (customer-specific)
 
 ## Summary/Description
 
-Pie chart of allocation of "leaf" stories in the currently selected Project Scope, grouped by whether or not the ancestor portfolio item is tagged with the "Core PB Gold List" flag. Orphaned work or stories which roll up to a portfolio item with the flag unspecified will be accounted for in an "undefined" category in the chart.
+Pie chart of allocation of "leaf" stories in the currently selected Project Scope, grouped by which business unit owns the Portfolio Item which the story rolls up to. Orphaned work or stories which roll up to a portfolio item with the corresponding business unit unspecified will be accounted for in an "undefined" category in the chart.
 
 Allocation can be calculated by leaf story count or sum of leaf story points (plan estimate).
 

@@ -382,7 +382,14 @@ Ext.define("ms-underlying-bu-allocation", {
                 });
         });
       
-        //this.logger.log('buildChart', data);
+        // Sort the segments from largest to smallest, clockwise from 12 o'clock
+        //this.logger.log('BEFORE SORT: ',data);
+        var sorted_data = data.sort(function(a,b){
+            if(a.y<b.y){return 1}
+            if(a.y>b.y){return -1}
+            return 0;
+        });
+        //this.logger.log('AFTER SORT: ', sorted_data);
 
         this.getDisplayBox().removeAll();
         this.getDisplayBox().add({
@@ -393,7 +400,7 @@ Ext.define("ms-underlying-bu-allocation", {
                 series: [{
                     type: 'pie',
                     name: "Underlying Business Unit Allocation",
-                    data:  data,
+                    data:  sorted_data,
                     showInLegend: false
                 }]
             }
